@@ -5,6 +5,8 @@
     "co": "latest",
     "co-prompt": "latest",
     "commander": "latest",
+    "jszip": "latest",
+    "request": "latest",
     "uppercase-core": "latest"
   },
   "bin": {

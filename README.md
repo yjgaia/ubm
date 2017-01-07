@@ -1,20 +1,20 @@
 # ubm
-UPPERCASE BOX Manager
+UPPERCASE BOX를 관리하는 모듈입니다.
 
+## ubm 설치
 ```
-ubm install Hanul/UUI
-```
-
-```
-ubm update Hanul/UUI
+npm install -g ubm
 ```
 
+## BOX 설치 및 업데이트
+현재 폴더의 DEPENDENCY 파일에 수록되어 있는 모든 BOX들을 설치하거나 업데이트합니다.
 ```
-ubm remove Hanul/UUI
+ubm
 ```
 
+## BOX 출시
+현재 BOX를 저장소(http://box.uppercase.io)에 출시합니다.
 ```
-ubm publish Hanul/UUI
-[http://box.uppercase.io]
+ubm Hanul/UUI
 비밀번호: 
 ```
