@@ -141,18 +141,27 @@ RUN(function() {
 				
 				if (validErrors.username !== undefined) {
 					if (validErrors.username.type === 'notExists') {
-						SHOW_ERROR('ubm', '존재하지 않는 유저입니다.');
+						SHOW_ERROR('ubm', '존재하지 않는 유저입니다.', {
+							username : username,
+							boxName : boxName
+						});
 					}
 				}
 				
 				else if (validErrors.boxName !== undefined) {
 					if (validErrors.boxName.type === 'notExists') {
-						SHOW_ERROR('ubm', '존재하지 않는 BOX입니다.');
+						SHOW_ERROR('ubm', '존재하지 않는 BOX입니다.', {
+							username : username,
+							boxName : boxName
+						});
 					}
 				}
 				
 				else {
-					SHOW_ERROR('ubm', '알 수 없는 오류가 발생했습니다.');
+					SHOW_ERROR('ubm', '알 수 없는 오류가 발생했습니다.', {
+						username : username,
+						boxName : boxName
+					});
 				}
 			}
 			

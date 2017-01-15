@@ -7,7 +7,7 @@ npm install -g ubm
 ```
 
 ## BOX 설치 및 업데이트
-현재 폴더의 DEPENDENCY 파일에 수록되어 있는 모든 BOX들을 설치하거나 업데이트합니다.
+현재 폴더의 `DEPENDENCY` 파일에 수록되어 있는 모든 BOX들을 설치하거나 업데이트합니다.
 ```
 ubm install
 ```
