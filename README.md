@@ -19,7 +19,7 @@ ubm pack UUI
 ```
 
 ## BOX 출시
-현재 BOX를 저장소(http://box.uppercase.io)에 출시합니다. 출시하기 전에 패킹을 수행하여야 합니다.
+현재 [BOX를 저장소](http://box.uppercase.io)에 출시합니다. 출시하기 전에 패킹을 수행하여야 합니다.
 ```
 ubm publish Hanul/UUI
 비밀번호: 
