@@ -16,7 +16,10 @@ RUN(() => {
 	let Path = require('path');
 	let Esprima = require('esprima');
 	
-	let rootPath = process.cwd()
+	let packageInfo = PARSE_STR(READ_FILE({
+		path : __dirname + '/package.json',
+		isSync : true
+	}).toString());
 	
 	let checkIsAllowedFolderName = (name) => {
 		//REQUIRED: name
@@ -153,7 +156,7 @@ RUN(() => {
 				(next) => {
 					
 					READ_FILE({
-						path : rootPath + '/BOX/' + boxName + '/VERSION',
+						path : 'BOX/' + boxName + '/VERSION',
 						isSync : true
 					}, {
 						
@@ -170,7 +173,7 @@ RUN(() => {
 							else {
 								
 								READ_FILE({
-									path : rootPath + '/BOX/' + boxName + '/DEPENDENCY',
+									path : 'BOX/' + boxName + '/DEPENDENCY',
 									isSync : true
 								}, {
 									
@@ -191,7 +194,7 @@ RUN(() => {
 					return () => {
 						
 						REMOVE_FOLDER({
-							path : rootPath + '/BOX/' + boxName,
+							path : 'BOX/' + boxName,
 							isSync : true
 						}, {
 							notExists : () => {
@@ -201,10 +204,10 @@ RUN(() => {
 						
 						DOWNLOAD({
 							url : BOX_SITE_URL + '/__RF/BoxSite/' + boxData.fileId,
-							path : rootPath + '/BOX/__' + boxName + '.zip'
+							path : 'BOX/__' + boxName + '.zip'
 						}, () => {
 							
-							READ_FILE(rootPath + '/BOX/__' + boxName + '.zip', (content) => {
+							READ_FILE('BOX/__' + boxName + '.zip', (content) => {
 								
 								JSZip.loadAsync(content).then((zip) => {
 									
@@ -225,7 +228,7 @@ RUN(() => {
 										fileInfo.file.async('nodebuffer').then((content) => {
 											
 											WRITE_FILE({
-												path : rootPath + '/BOX/' + boxName + fileInfo.path,
+												path : 'BOX/' + boxName + fileInfo.path,
 												content : content,
 												isSync : true
 											});
@@ -243,7 +246,7 @@ RUN(() => {
 									() => {
 										return () => {
 											
-											REMOVE_FILE(rootPath + '/BOX/__' + boxName + '.zip');
+											REMOVE_FILE('BOX/__' + boxName + '.zip');
 											
 											console.log(CONSOLE_BLUE('[' + boxName + '] BOX가 새로 설치되었습니다.'));
 											
@@ -260,7 +263,7 @@ RUN(() => {
 	};
 	
 	Program
-		.version('0.0.1')
+		.version(packageInfo.version)
 		.arguments('<cmd> [box]')
 		.action((cmd, box) => {
 			
@@ -275,7 +278,7 @@ RUN(() => {
 			// 설치하기
 			if (cmd === 'install') {
 				
-				READ_FILE(rootPath + '/DEPENDENCY', {
+				READ_FILE('DEPENDENCY', {
 					
 					notExists : () => {
 						SHOW_ERROR('ubm', 'DEPENDENCY 파일이 존재하지 않습니다.');
@@ -355,7 +358,7 @@ RUN(() => {
 			
 						// add to common script.
 						commonScript += READ_FILE({
-							path : rootPath + '/' + relativePath,
+							path : relativePath,
 							isSync : true
 						}) + '\n';
 					}
@@ -368,7 +371,7 @@ RUN(() => {
 			
 						// add to browser script.
 						browserScript += READ_FILE({
-							path : rootPath + '/' + relativePath,
+							path : relativePath,
 							isSync : true
 						}) + '\n';
 					}
@@ -381,7 +384,7 @@ RUN(() => {
 			
 						// add to node script.
 						nodeScript += READ_FILE({
-							path : rootPath + '/' + relativePath,
+							path : relativePath,
 							isSync : true
 						}) + '\n';
 					}
@@ -521,7 +524,7 @@ RUN(() => {
 					let password = yield Prompt.password('비밀번호: ');
 					
 					let readme = READ_FILE({
-						path : rootPath + '/__PACK/' + boxName + '/README.md',
+						path : '__PACK/' + boxName + '/README.md',
 						isSync : true
 					}, {
 						notExists : () => {
@@ -534,7 +537,7 @@ RUN(() => {
 					}
 					
 					let dependency = READ_FILE({
-						path : rootPath + '/__PACK/' + boxName + '/DEPENDENCY',
+						path : '__PACK/' + boxName + '/DEPENDENCY',
 						isSync : true
 					}, {
 						notExists : () => {
@@ -547,7 +550,7 @@ RUN(() => {
 						dependency = dependency.split('\n');
 					}
 					
-					READ_FILE(rootPath + '/__PACK/' + boxName + '/VERSION', {
+					READ_FILE('__PACK/' + boxName + '/VERSION', {
 						
 						notExists : () => {
 							SHOW_ERROR('ubm', 'VERSION 파일이 존재하지 않습니다.');
@@ -557,7 +560,7 @@ RUN(() => {
 							
 							let zip = JSZip();
 							
-							scanFolder(rootPath + '/__PACK/' + boxName, '', (fromPath, toPath) => {
+							scanFolder('__PACK/' + boxName, '', (fromPath, toPath) => {
 								
 								zip.file(toPath, READ_FILE({
 									path : fromPath,

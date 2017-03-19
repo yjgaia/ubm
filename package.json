@@ -1,12 +1,13 @@
 {
   "name": "ubm",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "dependencies": {
     "co": "latest",
     "co-prompt": "latest",
     "commander": "latest",
     "jszip": "latest",
     "request": "latest",
+    "esprima": "latest",
     "uppercase-core": "latest",
     "uppercase-api-generator": "latest"
   },
