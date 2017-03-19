@@ -1,15 +1,16 @@
 {
   "name": "ubm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "co": "latest",
     "co-prompt": "latest",
     "commander": "latest",
     "jszip": "latest",
     "request": "latest",
-    "uppercase-core": "latest"
+    "uppercase-core": "latest",
+    "uppercase-api-generator": "latest"
   },
   "bin": {
-    "ubm": "./index.js"
+    "ubm": "./program.js"
   }
 }
