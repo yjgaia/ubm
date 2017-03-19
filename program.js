@@ -4,7 +4,7 @@ require('uppercase-core');
 
 RUN(() => {
 	
-	const BOX_SITE_URL = 'http://box.uppercase.io';
+	const BOX_SITE_URL = 'https://box.uppercase.io';
 	
 	let Co = require('co');
 	let Prompt = require('co-prompt');
@@ -647,3 +647,4 @@ RUN(() => {
 	
 	Program.parse(process.argv);
 });
+
