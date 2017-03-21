@@ -572,7 +572,10 @@ RUN(() => {
 								type : 'nodebuffer'
 							}).then((content) => {
 								
-								let req = Request.post(BOX_SITE_URL + '/__UPLOAD?boxName=BoxSite', (err, res, result) => {
+								let req = Request.post({
+									rejectUnauthorized : false,
+									url : BOX_SITE_URL + '/__UPLOAD?boxName=BoxSite'
+								}, (err, res, result) => {
 									if (err !== TO_DELETE) {
 										SHOW_ERROR('ubm', '저장소에 접속할 수 없습니다.', err);
 									} else {
