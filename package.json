@@ -1,6 +1,6 @@
 {
   "name": "ubm",
-  "version": "1.0.8",
+  "version": "1.0.12",
   "dependencies": {
     "co": "latest",
     "co-prompt": "latest",

@@ -27,25 +27,23 @@ RUN(() => {
 		return (
 			// hide folder
 			name[0] !== '.' &&
-
+			
 			// node.js module
 			name !== 'node_modules' &&
 
-			// not_load
-			name !== 'not_load' &&
+			// not load
+			name !== '__NOT_LOAD' &&
 
 			// deprecated
-			name !== 'deprecated' &&
-
-			// _ folder
-			name[0] !== '_'
+			name !== '__OLD'
 		);
 	};
 	
-	let scanFolder = (path, folderPath, func) => {
+	let scanFolder = (path, folderPath, func, isToAll) => {
 		//REQUIRED: path
 		//REQUIRED: folderPath
 		//REQUIRED: func
+		//OPTIONAL: isToAll
 
 		if (CHECK_FILE_EXISTS({
 			path : path,
@@ -79,8 +77,8 @@ RUN(() => {
 
 				success : (folderNames) => {
 					EACH(folderNames, (folderName) => {
-						if (checkIsAllowedFolderName(folderName) === true) {
-							scanFolder(path + '/' + folderName, folderPath + '/' + folderName, func);
+						if (isToAll === true || checkIsAllowedFolderName(folderName) === true) {
+							scanFolder(path + '/' + folderName, folderPath + '/' + folderName, func, isToAll);
 						}
 					});
 				}
@@ -566,7 +564,7 @@ RUN(() => {
 									path : fromPath,
 									isSync : true
 								}));
-							});
+							}, true);
 							
 							zip.generateAsync({
 								type : 'nodebuffer'
