@@ -53,6 +53,11 @@ RUN(() => {
 				});
 			}
 			
+			// 프로젝트 폴더 초기화
+			else if (cmd === 'init' && box !== undefined) {
+				ubm.init(box);
+			}
+			
 			else {
 				SHOW_ERROR('ubm', '알 수 없는 명령입니다.', cmd);
 			}

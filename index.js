@@ -609,6 +609,58 @@ module.exports = CLASS((cls) => {
 					}
 				});
 			};
+			
+			// 프로젝트 폴더 초기화
+			let init = self.init = (boxName) => {
+				
+				let cal = CALENDAR();
+				
+				let port = '8' + cal.getMonth(true).substring(1) + cal.getDate(true);
+				
+				WRITE_FILE({
+					path : boxName + '.js',
+					content : 'require(process.env.UPPERCASE_PATH + \'/LOAD.js\');\n\nBOOT({\n\tCONFIG : {\n\t\tdefaultBoxName : \'' + boxName + '\',\n\t\t\n\t\tisDevMode : true,\n\t\t\n\t\twebServerPort : ' + port + '\n\t},\n\t\n\tBROWSER_CONFIG : {\n\t\t\n\t},\n\t\n\tNODE_CONFIG : {\n\t\t// 테스트 목적이기 때문에 CPU 클러스터링 기능을 사용하지 않습니다.\n\t\tisNotUsingCPUClustering : true\n\t}\n});\n',
+					isSync : true
+				});
+				
+				WRITE_FILE({
+					path : 'VERSION',
+					content : '0.0.1',
+					isSync : true
+				});
+				
+				WRITE_FILE({
+					path : 'DEPENDENCY',
+					content : '',
+					isSync : true
+				});
+				
+				WRITE_FILE({
+					path : boxName + '/BROWSER/MAIN.js',
+					content : boxName + '.MAIN = METHOD({\n\t\n\trun : () => {\n\t\t\n\t\t\n\t}\n});\n',
+					isSync : true
+				});
+				
+				CREATE_FOLDER({
+					path : boxName + '/COMMON',
+					isSync : true
+				});
+				
+				WRITE_FILE({
+					path : boxName + '/NODE/MAIN.js',
+					content : boxName + '.MAIN = METHOD({\n\t\n\trun : (addRequestHandler) => {\n\t\t\n\t\t\n\t}\n});\n',
+					isSync : true
+				});
+				
+				WRITE_FILE({
+					path : '.gitignore',
+					content : '__RF/\n',
+					isSync : true
+				});
+				
+				// done!
+				console.log(CONSOLE_GREEN('[' + boxName + '] 프로젝트 폴더를 초기화하였습니다.'));
+			};
 		}
 	};
 });
