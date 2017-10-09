@@ -6,11 +6,14 @@
 
 'use strict';
 
+const safeBuffer = require('safe-buffer');
 const crypto = require('crypto');
 
 const PerMessageDeflate = require('./PerMessageDeflate');
 const bufferUtil = require('./BufferUtil');
 const ErrorCodes = require('./ErrorCodes');
+
+const Buffer = safeBuffer.Buffer;
 
 /**
  * HyBi Sender implementation.
@@ -23,15 +26,15 @@ class Sender {
    * @param {Object} extensions An object containing the negotiated extensions
    */
   constructor (socket, extensions) {
-    this.perMessageDeflate = (extensions || {})[PerMessageDeflate.extensionName];
+    this._extensions = extensions || {};
     this._socket = socket;
 
-    this.firstFragment = true;
-    this.compress = false;
+    this._firstFragment = true;
+    this._compress = false;
 
-    this.bufferedBytes = 0;
-    this.deflating = false;
-    this.queue = [];
+    this._bufferedBytes = 0;
+    this._deflating = false;
+    this._queue = [];
 
     this.onerror = null;
   }
@@ -120,7 +123,7 @@ class Sender {
     buf.writeUInt16BE(code || 1000, 0, true);
     if (buf.length > 2) buf.write(data, 2);
 
-    if (this.deflating) {
+    if (this._deflating) {
       this.enqueue([this.doClose, buf, mask, cb]);
     } else {
       this.doClose(buf, mask, cb);
@@ -137,11 +140,11 @@ class Sender {
    */
   doClose (data, mask, cb) {
     this.sendFrame(Sender.frame(data, {
-      readOnly: false,
-      opcode: 0x08,
-      rsv1: false,
       fin: true,
-      mask
+      rsv1: false,
+      opcode: 0x08,
+      mask,
+      readOnly: false
     }), cb);
   }
 
@@ -166,7 +169,7 @@ class Sender {
       }
     }
 
-    if (this.deflating) {
+    if (this._deflating) {
       this.enqueue([this.doPing, data, mask, readOnly]);
     } else {
       this.doPing(data, mask, readOnly);
@@ -183,11 +186,11 @@ class Sender {
    */
   doPing (data, mask, readOnly) {
     this.sendFrame(Sender.frame(data, {
-      opcode: 0x09,
-      rsv1: false,
       fin: true,
-      readOnly,
-      mask
+      rsv1: false,
+      opcode: 0x09,
+      mask,
+      readOnly
     }));
   }
 
@@ -212,7 +215,7 @@ class Sender {
       }
     }
 
-    if (this.deflating) {
+    if (this._deflating) {
       this.enqueue([this.doPong, data, mask, readOnly]);
     } else {
       this.doPong(data, mask, readOnly);
@@ -229,11 +232,11 @@ class Sender {
    */
   doPong (data, mask, readOnly) {
     this.sendFrame(Sender.frame(data, {
-      opcode: 0x0a,
-      rsv1: false,
       fin: true,
-      readOnly,
-      mask
+      rsv1: false,
+      opcode: 0x0a,
+      mask,
+      readOnly
     }));
   }
 
@@ -265,41 +268,42 @@ class Sender {
       }
     }
 
-    if (this.firstFragment) {
-      this.firstFragment = false;
-      if (rsv1 && this.perMessageDeflate) {
-        rsv1 = data.length >= this.perMessageDeflate.threshold;
+    const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
+
+    if (this._firstFragment) {
+      this._firstFragment = false;
+      if (rsv1 && perMessageDeflate) {
+        rsv1 = data.length >= perMessageDeflate._threshold;
       }
-      this.compress = rsv1;
+      this._compress = rsv1;
     } else {
       rsv1 = false;
       opcode = 0;
     }
 
-    if (options.fin) this.firstFragment = true;
+    if (options.fin) this._firstFragment = true;
 
-    if (this.perMessageDeflate) {
+    if (perMessageDeflate) {
       const opts = {
-        compress: this.compress,
-        mask: options.mask,
         fin: options.fin,
-        readOnly,
+        rsv1,
         opcode,
-        rsv1
+        mask: options.mask,
+        readOnly
       };
 
-      if (this.deflating) {
-        this.enqueue([this.dispatch, data, opts, cb]);
+      if (this._deflating) {
+        this.enqueue([this.dispatch, data, this._compress, opts, cb]);
       } else {
-        this.dispatch(data, opts, cb);
+        this.dispatch(data, this._compress, opts, cb);
       }
     } else {
       this.sendFrame(Sender.frame(data, {
-        mask: options.mask,
         fin: options.fin,
         rsv1: false,
-        readOnly,
-        opcode
+        opcode,
+        mask: options.mask,
+        readOnly
       }), cb);
     }
   }
@@ -308,24 +312,26 @@ class Sender {
    * Dispatches a data message.
    *
    * @param {Buffer} data The message to send
+   * @param {Boolean} compress Specifies whether or not to compress `data`
    * @param {Object} options Options object
    * @param {Number} options.opcode The opcode
    * @param {Boolean} options.readOnly Specifies whether `data` can be modified
    * @param {Boolean} options.fin Specifies whether or not to set the FIN bit
-   * @param {Boolean} options.compress Specifies whether or not to compress `data`
    * @param {Boolean} options.mask Specifies whether or not to mask `data`
    * @param {Boolean} options.rsv1 Specifies whether or not to set the RSV1 bit
    * @param {Function} cb Callback
    * @private
    */
-  dispatch (data, options, cb) {
-    if (!options.compress) {
+  dispatch (data, compress, options, cb) {
+    if (!compress) {
       this.sendFrame(Sender.frame(data, options), cb);
       return;
     }
 
-    this.deflating = true;
-    this.perMessageDeflate.compress(data, options.fin, (err, buf) => {
+    const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
+
+    this._deflating = true;
+    perMessageDeflate.compress(data, options.fin, (err, buf) => {
       if (err) {
         if (cb) cb(err);
         else this.onerror(err);
@@ -334,7 +340,7 @@ class Sender {
 
       options.readOnly = false;
       this.sendFrame(Sender.frame(buf, options), cb);
-      this.deflating = false;
+      this._deflating = false;
       this.dequeue();
     });
   }
@@ -345,10 +351,10 @@ class Sender {
    * @private
    */
   dequeue () {
-    while (!this.deflating && this.queue.length) {
-      const params = this.queue.shift();
+    while (!this._deflating && this._queue.length) {
+      const params = this._queue.shift();
 
-      this.bufferedBytes -= params[1].length;
+      this._bufferedBytes -= params[1].length;
       params[0].apply(this, params.slice(1));
     }
   }
@@ -360,8 +366,8 @@ class Sender {
    * @private
    */
   enqueue (params) {
-    this.bufferedBytes += params[1].length;
-    this.queue.push(params);
+    this._bufferedBytes += params[1].length;
+    this._queue.push(params);
   }
 
   /**

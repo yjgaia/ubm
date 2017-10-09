@@ -1,6 +1,6 @@
 {
   "name": "ubm",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "dependencies": {
     "co": "latest",
     "co-prompt": "latest",
@@ -9,7 +9,7 @@
     "jszip": "latest",
     "request": "latest",
     "uppercase-api-generator": "latest",
-    "uppercase-core": "latest"
+    "uppercase-boot": "latest"
   },
   "main": "index.js",
   "bin": {

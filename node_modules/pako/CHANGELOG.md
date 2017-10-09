@@ -1,3 +1,16 @@
+1.0.6 / 2017-09-14
+------------------
+
+- Improve @std/esm compatibility.
+
+
+1.0.5 / 2017-03-17
+------------------
+
+- Maintenance. More formal `zlib` attribution and related
+  changes, #93. Thanks to @bastien-roucaries for the help.
+
+
 1.0.4 / 2016-12-15
 ------------------
 
@@ -74,7 +87,7 @@
 0.2.2 / 2014-06-04
 ------------------
 
-- Fixed iOS 5.1 Safary issue with `apply(typed_array)`, #26.
+- Fixed iOS 5.1 Safari issue with `apply(typed_array)`, #26.
 
 
 0.2.1 / 2014-05-01
