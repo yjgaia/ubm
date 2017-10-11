@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('uppercase-core');
+require('uppercase-boot');
 
 INIT_OBJECTS();
 
@@ -19,8 +19,8 @@ RUN(() => {
 	
 	Program
 		.version(packageInfo.version)
-		.arguments('<cmd> [box]')
-		.action((cmd, box) => {
+		.arguments('<cmd> [box] [path]')
+		.action((cmd, box, path) => {
 			
 			let username;
 			let boxName;
@@ -56,6 +56,14 @@ RUN(() => {
 			// 프로젝트 폴더 초기화
 			else if (cmd === 'init' && box !== undefined) {
 				ubm.init(box);
+			}
+			
+			// 하이브리드 앱을 위한 프로젝트 풀 패키징
+			else if (cmd === 'fullpack' && box !== undefined && path !== undefined) {
+				ubm.fullpack({
+					bootCodePath : box,
+					path : path
+				});
 			}
 			
 			else {

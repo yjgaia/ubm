@@ -661,6 +661,143 @@ module.exports = CLASS((cls) => {
 				// done!
 				console.log(CONSOLE_GREEN('[' + boxName + '] 프로젝트 폴더를 초기화하였습니다.'));
 			};
+			
+			// 하이브리드 앱을 위한 풀 패키징
+			let fullpack = self.fullpack = (params) => {
+				
+				let bootCodePath = params.bootCodePath;
+				let path = params.path;
+				
+				let bootCode = READ_FILE({
+					path : bootCodePath,
+					isSync : true
+				}).toString();
+				
+				let configs = eval('(()=>{let config;let BOOT=(_config)=>{config = _config;};\n' + bootCode + '\nreturn config;})()');
+				
+				let browserScript = '';
+				
+				// load all UPPERCASE modules for browser.
+				EACH(['CORE', 'ROOM', 'MODEL', 'BOOT'], (name, i) => {
+					browserScript += READ_FILE({
+						path : __dirname + '/node_modules/uppercase-' + name.toLowerCase() + '/BROWSER.MIN.js',
+						isSync : true
+					}).toString() + '\n';
+				});
+				
+				// configuration
+				let version = 'V' + Date.now();
+				
+				let _CONFIG;
+				let _NODE_CONFIG;
+				let _BROWSER_CONFIG;
+		
+				let stringifyJSONWithFunction = (data) => {
+		
+					return JSON.stringify(data, (key, value) => {
+						if (typeof value === 'function') {
+							return '__FUNCTION_START__' + value.toString() + '__FUNCTION_END__';
+						}
+						return value;
+					}, '\t').replace(/("__FUNCTION_START__(.*)__FUNCTION_END__")/g, (match, content) => {
+						return eval('(' + eval('"' + content.substring('"__FUNCTION_START__'.length, content.length - '__FUNCTION_END__"'.length) + '"') + ')').toString();
+					});
+				};
+				
+				if (configs !== undefined) {
+					_CONFIG = configs.CONFIG;
+					_BROWSER_CONFIG = configs.BROWSER_CONFIG;
+				}
+		
+				// override CONFIG.
+				if (_CONFIG !== undefined) {
+					// add CONFIG to browser script.
+					browserScript += 'EXTEND({ origin : CONFIG, extend : ' + stringifyJSONWithFunction(_CONFIG) + ' });\n\n';
+				}
+				
+				READ_FILE({
+					path : 'VERSION',
+					isSync : true
+				}, {
+					
+					notExists : () => {
+						SHOW_ERROR('BOOT', MSG({
+							ko : 'VERSION 파일이 존재하지 않습니다.'
+						}));
+					},
+					
+					success : (buffer) => {
+						version = buffer.toString();
+					}
+				});
+				
+				browserScript += 'CONFIG.version = \'' + version + '\';\n\n';
+				
+				if (_CONFIG.isUsingProxy === true) {
+					browserScript += 'CONFIG.webServerPort = BROWSER_CONFIG.port;\n\n';
+				}
+		
+				// override BROWSER_CONFIG.
+				if (_BROWSER_CONFIG !== undefined) {
+		
+					// add BROWSER_CONFIG to browser script.
+					browserScript += 'EXTEND({ origin : BROWSER_CONFIG, extend : ' + stringifyJSONWithFunction(_BROWSER_CONFIG) + ' });\n\n';
+				}
+				
+				INIT_BOXES(Path.resolve('.'), (content) => {
+					browserScript += content + '\n';
+				});
+				
+				LOAD_ALL_SCRIPTS({
+					rootPath : Path.resolve('.'),
+					env : 'BROWSER'
+				}, (path, boxName) => {
+					
+					browserScript += READ_FILE({
+						path : path,
+						isSync : true
+					}).toString() + '\n';
+				});
+				
+				browserScript += READ_FILE({
+					path : __dirname + '/node_modules/uppercase-boot/BROWSER_INIT.MIN.js',
+					isSync : true
+				}).toString() + '\n';
+				
+				// browser script.
+				WRITE_FILE({
+					path : path + '/__SCRIPT',
+					content : browserScript
+				});
+				
+				// resources.
+				FOR_BOX((box) => {
+					
+					let boxRootPath = CHECK_IS_IN({
+						array : INIT_BOXES.getBoxNamesInBOXFolder(),
+						value : box.boxName
+					}) === true ? Path.resolve('.') + '/BOX' : Path.resolve('.');
+					
+					COPY_FOLDER({
+						from : boxRootPath + '/' + box.boxName + '/R',
+						to : path + '/' + box.boxName + '/R',
+						isSync : true
+					}, {
+						notExists : () => {
+							// ignore.
+						}
+					});
+				});
+				
+				// base style css.
+				WRITE_FILE({
+					path : path + '/__CSS',
+					content : READ_FILE({
+						path : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
+						isSync : true
+					}).toString()
+				});
+			};
 		}
 	};
 });

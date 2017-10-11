@@ -36,3 +36,12 @@ ubm publish Hanul/UUI
 ```
 ubm init UUI
 ```
+
+## 하이브리드 앱을 위한 프로젝트 풀 패키징
+[UPPERCASE를 기반으로 하이브리드 앱을 만들 때](https://github.com/Hanul/UPPERCASE/blob/master/DOC/GUIDE/HYBRID_APP.md) 애플리케이션에 프로젝트를 포함시키기 위하여 프로젝트 전체를 패키징 합니다.
+```
+ubm fullpack {{프로젝트 실행을 위한 코드.js}} {{프로젝트를 저장할 경로}}
+```
+```
+ubm fullpack Sample.js SampleApp/www
+```
