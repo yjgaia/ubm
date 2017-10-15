@@ -718,17 +718,8 @@ module.exports = CLASS((cls) => {
 				READ_FILE({
 					path : 'VERSION',
 					isSync : true
-				}, {
-					
-					notExists : () => {
-						SHOW_ERROR('BOOT', MSG({
-							ko : 'VERSION 파일이 존재하지 않습니다.'
-						}));
-					},
-					
-					success : (buffer) => {
-						version = buffer.toString();
-					}
+				}, (buffer) => {
+					version = buffer.toString();
 				});
 				
 				browserScript += 'CONFIG.version = \'' + version + '\';\n\n';
@@ -797,6 +788,9 @@ module.exports = CLASS((cls) => {
 						isSync : true
 					}).toString()
 				});
+				
+				// done!
+				console.log(CONSOLE_GREEN('[' + _CONFIG.defaultBoxName + '] 프로젝트를 성공적으로 패키징하였습니다.'));
 			};
 		}
 	};
