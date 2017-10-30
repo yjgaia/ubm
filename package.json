@@ -9,7 +9,8 @@
     "jszip": "latest",
     "request": "latest",
     "uppercase-api-generator": "latest",
-    "uppercase-boot": "latest"
+    "uppercase-boot": "latest",
+    "uppercase-core": "^1.0.8"
   },
   "main": "index.js",
   "bin": {
