@@ -711,6 +711,7 @@ module.exports = CLASS((cls) => {
 		
 				// override CONFIG.
 				if (_CONFIG !== undefined) {
+					_CONFIG.isDevMode = false;
 					// add CONFIG to browser script.
 					browserScript += 'EXTEND({ origin : CONFIG, extend : ' + stringifyJSONWithFunction(_CONFIG) + ' });\n\n';
 				}
@@ -758,7 +759,7 @@ module.exports = CLASS((cls) => {
 				// browser script.
 				WRITE_FILE({
 					path : path + '/__SCRIPT',
-					content : browserScript
+					content : MINIFY_JS(browserScript)
 				});
 				
 				// resources.
