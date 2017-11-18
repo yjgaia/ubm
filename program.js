@@ -7,7 +7,7 @@ INIT_OBJECTS();
 RUN(() => {
 	
 	let Co = require('co');
-	let Prompt = require('co-prompt');
+	let Prompt = require('hanul-co-prompt');
 	let Program = require('commander');
 	
 	let ubm = require('./index.js')();
