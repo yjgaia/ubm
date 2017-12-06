@@ -751,6 +751,59 @@ module.exports = CLASS((cls) => {
 					}).toString() + '\n';
 				});
 				
+				// save all resources as data urls.
+				let resourceDataURLs = [];
+				
+				FOR_BOX((box) => {
+					
+					let boxRootPath = CHECK_IS_IN({
+						array : INIT_BOXES.getBoxNamesInBOXFolder(),
+						value : box.boxName
+					}) === true ? Path.resolve('.') + '/BOX' : Path.resolve('.');
+					
+					let scan = (folderPath, relativePath) => {
+						
+						if (CHECK_FILE_EXISTS({
+							path : folderPath,
+							isSync : true
+						}) === true) {
+							
+							FIND_FILE_NAMES({
+								path : folderPath,
+								isSync : true
+							}, EACH((fileName) => {
+								
+								resourceDataURLs.push({
+									path : relativePath + '/' + fileName,
+									dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(Path.extname(fileName).substring(1)) + ';base64,' + READ_FILE({
+										path : folderPath + '/' + fileName,
+										isSync : true
+									}).toString('base64')
+								});
+							}));
+							
+							FIND_FOLDER_NAMES({
+								path : folderPath,
+								isSync : true
+							}, EACH((folderName) => {
+								scan(folderPath + '/' + folderName, relativePath + '/' + folderName);
+							}));
+						}
+					};
+					
+					scan(boxRootPath + '/' + box.boxName + '/R', box.boxName + '/R');
+				});
+				
+				browserScript += 'global.__R={';
+				EACH(resourceDataURLs, (info, i) => {
+					if (i > 0) {
+						browserScript += ',';
+					}
+					browserScript += '\'' + info.path + '\':\'' + info.dataURL + '\'';
+				});
+				browserScript += '};'
+				browserScript += 'FOR_BOX(e=>{e.R=METHOD(r=>{r.setBasePath=(e=>{});return{run:(r,t)=>{let R=__R[e.boxName+"/R/"+r];return void 0!==t&&GET(R,t),R}}})});';
+				
 				browserScript += READ_FILE({
 					path : __dirname + '/node_modules/uppercase-boot/BROWSER_INIT.MIN.js',
 					isSync : true
@@ -760,25 +813,6 @@ module.exports = CLASS((cls) => {
 				WRITE_FILE({
 					path : path + '/__SCRIPT',
 					content : MINIFY_JS(browserScript)
-				});
-				
-				// resources.
-				FOR_BOX((box) => {
-					
-					let boxRootPath = CHECK_IS_IN({
-						array : INIT_BOXES.getBoxNamesInBOXFolder(),
-						value : box.boxName
-					}) === true ? Path.resolve('.') + '/BOX' : Path.resolve('.');
-					
-					COPY_FOLDER({
-						from : boxRootPath + '/' + box.boxName + '/R',
-						to : path + '/' + box.boxName + '/R',
-						isSync : true
-					}, {
-						notExists : () => {
-							// ignore.
-						}
-					});
 				});
 				
 				// base style css.
