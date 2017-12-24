@@ -667,6 +667,7 @@ module.exports = CLASS((cls) => {
 				
 				let bootCodePath = params.bootCodePath;
 				let path = params.path;
+				let extnames = params.extnames;
 				
 				let bootCode = READ_FILE({
 					path : bootCodePath,
@@ -719,8 +720,13 @@ module.exports = CLASS((cls) => {
 				READ_FILE({
 					path : 'VERSION',
 					isSync : true
-				}, (buffer) => {
-					version = buffer.toString();
+				}, {
+					notExists : () => {
+						// ignore.
+					},
+					success : (buffer) => {
+						version = buffer.toString();
+					}
 				});
 				
 				browserScript += 'CONFIG.version = \'' + version + '\';\n\n';
@@ -773,13 +779,35 @@ module.exports = CLASS((cls) => {
 								isSync : true
 							}, EACH((fileName) => {
 								
-								resourceDataURLs.push({
-									path : relativePath + '/' + fileName,
-									dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(Path.extname(fileName).substring(1)) + ';base64,' + READ_FILE({
-										path : folderPath + '/' + fileName,
-										isSync : true
-									}).toString('base64')
-								});
+								let extname = Path.extname(fileName).substring(1);
+								
+								if (
+								// mp3 파일을 포함하려면 ogg 파일은 포함되면 안됨
+								(extname !== 'mp3' || CHECK_IS_IN({
+									array : extnames,
+									value : 'ogg'
+								}) !== true) &&
+								
+								// wav 파일을 포함하려면 ogg 파일은 포함되면 안됨
+								(extname !== 'wav' || CHECK_IS_IN({
+									array : extnames,
+									value : 'ogg'
+								}) !== true) &&
+								
+								// ogg 파일을 포함하려면 mp3 파일은 포함되면 안됨
+								(extname !== 'ogg' || CHECK_IS_IN({
+									array : extnames,
+									value : 'mp3'
+								}) !== true)) {
+									
+									resourceDataURLs.push({
+										path : relativePath + '/' + fileName,
+										dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(extname) + ';base64,' + READ_FILE({
+											path : folderPath + '/' + fileName,
+											isSync : true
+										}).toString('base64')
+									});
+								}
 							}));
 							
 							FIND_FOLDER_NAMES({

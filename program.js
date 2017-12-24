@@ -19,8 +19,8 @@ RUN(() => {
 	
 	Program
 		.version(packageInfo.version)
-		.arguments('<cmd> [box] [path]')
-		.action((cmd, box, path) => {
+		.arguments('<cmd> [box] [path] [extnames...]')
+		.action((cmd, box, path, extnames) => {
 			
 			let username;
 			let boxName;
@@ -62,7 +62,8 @@ RUN(() => {
 			else if (cmd === 'fullpack' && box !== undefined && path !== undefined) {
 				ubm.fullpack({
 					bootCodePath : box,
-					path : path
+					path : path,
+					extnames : extnames
 				});
 			}
 			
