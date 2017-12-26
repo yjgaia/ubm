@@ -19,7 +19,7 @@ module.exports = CLASS((cls) => {
 			name !== 'node_modules' &&
 	
 			// not load
-			name !== '__NOT_LOAD' &&
+			name !== '__NOT_USING' &&
 	
 			// deprecated
 			name !== '__OLD'
