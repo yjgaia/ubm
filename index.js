@@ -822,25 +822,27 @@ module.exports = CLASS((cls) => {
 					scan(boxRootPath + '/' + box.boxName + '/R', box.boxName + '/R');
 				});
 				
-				browserScript += 'global.__R={';
-				EACH(resourceDataURLs, (info, i) => {
-					if (i > 0) {
-						browserScript += ',';
-					}
-					browserScript += '\'' + info.path + '\':\'' + info.dataURL + '\'';
-				});
-				browserScript += '};'
 				browserScript += 'FOR_BOX(e=>{e.R=METHOD(r=>{r.setBasePath=(e=>{});return{run:(r,t)=>{let R=__R[e.boxName+"/R/"+r];return void 0!==t&&GET(R,t),R}}})});';
-				
-				browserScript += READ_FILE({
-					path : __dirname + '/node_modules/uppercase-boot/BROWSER_INIT.MIN.js',
-					isSync : true
-				}).toString() + '\n';
 				
 				// browser script.
 				WRITE_FILE({
 					path : path + '/__SCRIPT',
 					content : MINIFY_JS(browserScript)
+				});
+				
+				// resource script.
+				let resourceScript = 'global.__R={';
+				EACH(resourceDataURLs, (info, i) => {
+					if (i > 0) {
+						resourceScript += ',';
+					}
+					resourceScript += '\'' + info.path + '\':\'' + info.dataURL + '\'';
+				});
+				resourceScript += '};'
+				
+				WRITE_FILE({
+					path : path + '/__R',
+					content : resourceScript
 				});
 				
 				// base style css.
