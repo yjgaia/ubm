@@ -846,12 +846,17 @@ module.exports = CLASS((cls) => {
 				});
 				
 				// base style css.
-				WRITE_FILE({
-					path : path + '/__CSS',
-					content : READ_FILE({
-						path : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
-						isSync : true
-					}).toString()
+				COPY_FILE({
+					from : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
+					to : path + '/__CSS',
+					isSync : true
+				});
+				
+				// browser init js.
+				COPY_FILE({
+					from : __dirname + '/node_modules/uppercase-boot/BROWSER_INIT.MIN.js',
+					to : path + '/BROWSER_INIT.js',
+					isSync : true
 				});
 				
 				// done!
