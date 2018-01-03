@@ -852,13 +852,6 @@ module.exports = CLASS((cls) => {
 					isSync : true
 				});
 				
-				// browser init js.
-				COPY_FILE({
-					from : __dirname + '/node_modules/uppercase-boot/BROWSER_INIT.MIN.js',
-					to : path + '/BROWSER_INIT.js',
-					isSync : true
-				});
-				
 				// done!
 				console.log(CONSOLE_GREEN('[' + _CONFIG.defaultBoxName + '] 프로젝트를 성공적으로 패키징하였습니다.'));
 			};
