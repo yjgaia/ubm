@@ -686,6 +686,8 @@ module.exports = CLASS((cls) => {
 					}).toString() + '\n';
 				});
 				
+				browserScript += 'FOR_BOX(e=>{e.R=METHOD(r=>{r.setBasePath=(e=>{});return{run:(r,t)=>{let R=__R[e.boxName+"/R/"+r];return void 0!==t&&GET(R,t),R}}})});';
+				
 				// configuration
 				let version = 'V' + Date.now();
 				
@@ -821,8 +823,6 @@ module.exports = CLASS((cls) => {
 					
 					scan(boxRootPath + '/' + box.boxName + '/R', box.boxName + '/R');
 				});
-				
-				browserScript += 'FOR_BOX(e=>{e.R=METHOD(r=>{r.setBasePath=(e=>{});return{run:(r,t)=>{let R=__R[e.boxName+"/R/"+r];return void 0!==t&&GET(R,t),R}}})});';
 				
 				// browser script.
 				WRITE_FILE({
