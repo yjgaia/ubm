@@ -8,24 +8,6 @@ module.exports = CLASS((cls) => {
 	let Path = require('path');
 	let Esprima = require('esprima');
 	
-	let checkIsAllowedFolderName = (name) => {
-		//REQUIRED: name
-	
-		return (
-			// hide folder
-			name[0] !== '.' &&
-			
-			// node.js module
-			name !== 'node_modules' &&
-	
-			// not load
-			name !== '__NOT_USING' &&
-	
-			// deprecated
-			name !== '__OLD'
-		);
-	};
-	
 	let scanFolder = (path, folderPath, func, isToAll) => {
 		//REQUIRED: path
 		//REQUIRED: folderPath
@@ -64,7 +46,7 @@ module.exports = CLASS((cls) => {
 	
 				success : (folderNames) => {
 					EACH(folderNames, (folderName) => {
-						if (isToAll === true || checkIsAllowedFolderName(folderName) === true) {
+						if (isToAll === true || CHECK_IS_ALLOWED_FOLDER_NAME(folderName) === true) {
 							scanFolder(path + '/' + folderName, folderPath + '/' + folderName, func, isToAll);
 						}
 					});
