@@ -8,7 +8,7 @@
     "hanul-co-prompt": "latest",
     "jszip": "latest",
     "request": "latest",
-    "uppercase-api-generator": "^1.1.1",
+    "uppercase-api-generator": "latest",
     "uppercase-boot": "latest",
     "uppercase-core": "latest"
   },
