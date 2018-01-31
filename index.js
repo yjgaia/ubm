@@ -830,7 +830,7 @@ module.exports = CLASS((cls) => {
 				// base style css.
 				COPY_FILE({
 					from : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
-					to : path + '/__CSS',
+					to : path + '/__CSS.css',
 					isSync : true
 				});
 				
