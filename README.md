@@ -43,5 +43,5 @@ ubm init UUI
 ubm fullpack {{프로젝트 실행을 위한 코드.js}} {{프로젝트를 저장할 경로}}
 ```
 ```
-ubm fullpack Sample.js SampleApp/www
+ubm fullpack Sample.js SampleApp/android/www
 ```
