@@ -724,9 +724,42 @@ module.exports = CLASS((cls) => {
 					browserScript += 'EXTEND({ origin : BROWSER_CONFIG, extend : ' + stringifyJSONWithFunction(_BROWSER_CONFIG) + ' });\n\n';
 				}
 				
-				INIT_BOXES(Path.resolve('.'), (content) => {
-					browserScript += content + '\n';
-				});
+				// create UPPERCASE box.
+				BOX('UPPERCASE');
+				
+				browserScript += 'BOX(\'UPPERCASE\');\n\n';
+				
+				// create box.
+				BOX(_CONFIG.defaultBoxName);
+
+				browserScript += 'BOX(\'' + _CONFIG.defaultBoxName + '\');\n\n';
+				
+				if (CHECK_FILE_EXISTS({
+					path : Path.resolve('.') + '/BOX',
+					isSync : true
+				}) === true) {
+		
+					// init boxes is BOX folder.
+					FIND_FOLDER_NAMES({
+						path : Path.resolve('.') + '/BOX',
+						isSync : true
+					}, (folderNames) => {
+		
+						EACH(folderNames, (folderName) => {
+		
+							if (CHECK_IS_ALLOWED_FOLDER_NAME(folderName) === true) {
+		
+								// create box.
+								BOX(folderName);
+		
+								browserScript += 'BOX(\'' + folderName + '\');\n\n';
+								
+								// save box name.
+								INIT_BOXES.getBoxNamesInBOXFolder().push(folderName);
+							}
+						});
+					});
+				}
 				
 				LOAD_ALL_SCRIPTS({
 					rootPath : Path.resolve('.'),
