@@ -814,7 +814,7 @@ module.exports = CLASS((cls) => {
 										
 										resourceDataURLs.push({
 											path : relativePath + '/' + fileName,
-											dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(extname) + ';base64,' + READ_FILE({
+											dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(ext) + ';base64,' + READ_FILE({
 												path : folderPath + '/' + fileName,
 												isSync : true
 											}).toString('base64')
