@@ -814,10 +814,10 @@ module.exports = CLASS((cls) => {
 										
 										resourceDataURLs.push({
 											path : relativePath + '/' + fileName,
-											dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(ext) + ';base64,' + READ_FILE({
+											dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(ext) + ';charset=utf-8,' + encodeURIComponent(READ_FILE({
 												path : folderPath + '/' + fileName,
 												isSync : true
-											}).toString('base64')
+											}).toString()).replace(/\'/g, '\\\'')
 										});
 									}
 									
