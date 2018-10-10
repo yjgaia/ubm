@@ -649,7 +649,8 @@ module.exports = CLASS((cls) => {
 				
 				let bootCodePath = params.bootCodePath;
 				let path = params.path;
-				let extnames = params.extnames;
+				let extname = params.extname;
+				let importResourceFilenames = params.importResourceFilenames;
 				
 				let bootCode = READ_FILE({
 					path : bootCodePath,
@@ -772,6 +773,9 @@ module.exports = CLASS((cls) => {
 					}).toString() + '\n';
 				});
 				
+				// save all resources as data urls.
+				let resourceDataURLs = [];
+				
 				FOR_BOX((box) => {
 					
 					let boxRootPath = CHECK_IS_IN({
@@ -791,32 +795,40 @@ module.exports = CLASS((cls) => {
 								isSync : true
 							}, EACH((fileName) => {
 								
-								let extname = Path.extname(fileName).substring(1);
+								let ext = Path.extname(fileName).substring(1);
 								
 								if (
 								// mp3 파일을 포함하려면 ogg 파일은 포함되면 안됨
-								(extname !== 'mp3' || CHECK_IS_IN({
-									array : extnames,
-									value : 'ogg'
-								}) !== true) &&
+								(ext !== 'mp3' || extname !== 'ogg') &&
 								
 								// wav 파일을 포함하려면 ogg 파일은 포함되면 안됨
-								(extname !== 'wav' || CHECK_IS_IN({
-									array : extnames,
-									value : 'ogg'
-								}) !== true) &&
+								(ext !== 'wav' || extname !== 'ogg') &&
 								
 								// ogg 파일을 포함하려면 mp3 파일은 포함되면 안됨
-								(extname !== 'ogg' || CHECK_IS_IN({
-									array : extnames,
-									value : 'mp3'
-								}) !== true)) {
+								(ext !== 'ogg' || extname !== 'mp3')) {
 									
-									COPY_FILE({
-										from : boxRootPath + '/' + relativePath + '/' + fileName,
-										to : path + '/' + relativePath + '/' + fileName,
-										isSync : true
-									});
+									if (CHECK_IS_IN({
+										array : importResourceFilenames,
+										value : fileName
+									}) === true) {
+										
+										resourceDataURLs.push({
+											path : relativePath + '/' + fileName,
+											dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(extname) + ';base64,' + READ_FILE({
+												path : folderPath + '/' + fileName,
+												isSync : true
+											}).toString('base64')
+										});
+									}
+									
+									else {
+										
+										COPY_FILE({
+											from : boxRootPath + '/' + relativePath + '/' + fileName,
+											to : path + '/' + relativePath + '/' + fileName,
+											isSync : true
+										});
+									}
 								}
 							}));
 							
@@ -832,6 +844,8 @@ module.exports = CLASS((cls) => {
 					scan(boxRootPath + '/' + box.boxName + '/R', box.boxName + '/R');
 				});
 				
+				browserScript += 'FOR_BOX(o=>{o.R=METHOD(e=>{let i;e.setBasePath=(o=>{i=o});return{run:(e,r)=>{let t=o.boxName+"/R/"+e,a=__R[t];return void 0!==a?t=a:(void 0!==CONFIG.version&&(t+="?version="+CONFIG.version),void 0!==i&&(t=i+"/"+t),"file:"===location.protocol?o.boxName!==CONFIG.defaultBoxName&&(t="BOX/"+t):t="/"+t),void 0!==r&&GET(t,r),t}}})});';
+				
 				// browser script.
 				WRITE_FILE({
 					path : path + '/__SCRIPT',
@@ -843,6 +857,21 @@ module.exports = CLASS((cls) => {
 					from : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
 					to : path + '/__CSS.css',
 					isSync : true
+				});
+				
+				// resource script.
+				let resourceScript = 'global.__R={';
+				EACH(resourceDataURLs, (info, i) => {
+					if (i > 0) {
+						resourceScript += ',';
+					}
+					resourceScript += '\'' + info.path + '\':\'' + info.dataURL + '\'';
+				});
+				resourceScript += '};'
+				
+				WRITE_FILE({
+					path : path + '/__R',
+					content : resourceScript
 				});
 				
 				// done!

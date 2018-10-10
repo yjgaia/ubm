@@ -19,8 +19,8 @@ RUN(() => {
 	
 	Program
 		.version(packageInfo.version)
-		.arguments('<cmd> [box] [path] [extnames...]')
-		.action((cmd, box, path, extnames) => {
+		.arguments('<cmd> [box] [path] [extname] [importResourceFilenames...]')
+		.action((cmd, box, path, extname, importResourceFilenames) => {
 			
 			let username;
 			let boxName;
@@ -63,7 +63,8 @@ RUN(() => {
 				ubm.fullpack({
 					bootCodePath : box,
 					path : path,
-					extnames : extnames
+					extname : extname,
+					importResourceFilenames : importResourceFilenames
 				});
 			}
 			

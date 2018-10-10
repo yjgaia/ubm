@@ -45,3 +45,24 @@ ubm fullpack {{프로젝트 실행을 위한 코드.js}} {{프로젝트를 저�
 ```
 ubm fullpack Sample.js SampleApp/android/www
 ```
+
+사운드 파일 중 OGG 파일만 추가하고자 할 때
+```
+ubm fullpack Sample.js SampleApp/android/www ogg
+```
+
+사운드 파일 중 MP3, WAV 파일만 추가하고자 할 때
+```
+ubm fullpack Sample.js SampleApp/android/www mp3
+```
+
+`REQUEST` 관련 함수로 로컬 파일을 읽어들이고자 할 때
+```
+ubm fullpack Sample.js SampleApp/android/www ogg text.csv
+```
+
+## 라이센스
+[MIT](LICENSE)
+
+## 작성자
+[Young Jae Sim](https://github.com/Hanul)
