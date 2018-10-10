@@ -772,9 +772,6 @@ module.exports = CLASS((cls) => {
 					}).toString() + '\n';
 				});
 				
-				// save all resources as data urls.
-				let resourceDataURLs = [];
-				
 				FOR_BOX((box) => {
 					
 					let boxRootPath = CHECK_IS_IN({
@@ -782,17 +779,7 @@ module.exports = CLASS((cls) => {
 						value : box.boxName
 					}) === true ? Path.resolve('.') + '/BOX' : Path.resolve('.');
 					
-					COPY_FOLDER({
-						from : boxRootPath + '/' + box.boxName + '/R',
-						to : path + '/' + box.boxName + '/R',
-						isSync : true
-					}, {
-						notExists : () => {
-							// ignore.
-						}
-					});
-					
-					/*let scan = (folderPath, relativePath) => {
+					let scan = (folderPath, relativePath) => {
 						
 						if (CHECK_FILE_EXISTS({
 							path : folderPath,
@@ -825,12 +812,10 @@ module.exports = CLASS((cls) => {
 									value : 'mp3'
 								}) !== true)) {
 									
-									resourceDataURLs.push({
-										path : relativePath + '/' + fileName,
-										dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(extname) + ';base64,' + READ_FILE({
-											path : folderPath + '/' + fileName,
-											isSync : true
-										}).toString('base64')
+									COPY_FILE({
+										from : boxRootPath + '/' + relativePath + '/' + fileName,
+										to : path + '/' + relativePath + '/' + fileName,
+										isSync : true
 									});
 								}
 							}));
@@ -844,31 +829,14 @@ module.exports = CLASS((cls) => {
 						}
 					};
 					
-					scan(boxRootPath + '/' + box.boxName + '/R', box.boxName + '/R');*/
+					scan(boxRootPath + '/' + box.boxName + '/R', box.boxName + '/R');
 				});
-				
-				//browserScript += 'FOR_BOX(e=>{e.R=METHOD(r=>{r.setBasePath=(e=>{});return{run:(r,t)=>{let R=__R[e.boxName+"/R/"+r];return void 0!==t&&GET(R,t),R}}})});';
 				
 				// browser script.
 				WRITE_FILE({
 					path : path + '/__SCRIPT',
 					content : MINIFY_JS(browserScript)
 				});
-				
-				/*// resource script.
-				let resourceScript = 'global.__R={';
-				EACH(resourceDataURLs, (info, i) => {
-					if (i > 0) {
-						resourceScript += ',';
-					}
-					resourceScript += '\'' + info.path + '\':\'' + info.dataURL + '\'';
-				});
-				resourceScript += '};'
-				
-				WRITE_FILE({
-					path : path + '/__R',
-					content : resourceScript
-				});*/
 				
 				// base style css.
 				COPY_FILE({
