@@ -852,13 +852,6 @@ module.exports = CLASS((cls) => {
 					content : MINIFY_JS(browserScript)
 				});
 				
-				// base style css.
-				COPY_FILE({
-					from : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
-					to : path + '/__CSS.css',
-					isSync : true
-				});
-				
 				// resource script.
 				let resourceScript = 'global.__R={';
 				EACH(resourceDataURLs, (info, i) => {
@@ -872,6 +865,13 @@ module.exports = CLASS((cls) => {
 				WRITE_FILE({
 					path : path + '/__R',
 					content : resourceScript
+				});
+				
+				// base style css.
+				COPY_FILE({
+					from : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
+					to : path + '/__CSS.css',
+					isSync : true
 				});
 				
 				// done!
