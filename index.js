@@ -810,6 +810,9 @@ module.exports = CLASS((cls) => {
 									if (CHECK_IS_IN({
 										array : importResourceFilenames,
 										value : fileName
+									}) === true || CHECK_IS_IN({
+										array : importResourceFilenames,
+										value : '*.' + ext
 									}) === true) {
 										
 										resourceDataURLs.push({
