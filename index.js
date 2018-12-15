@@ -18,6 +18,29 @@ module.exports = CLASS((cls) => {
 			path : path,
 			isSync : true
 		}) === true) {
+			
+			let folderNames = [];
+
+			FIND_FOLDER_NAMES({
+				path : path,
+				isSync : true
+			}, {
+
+				notExists : () => {
+					// ignore.
+				},
+
+				success : (_folderNames) => {
+					folderNames = _folderNames;
+				}
+			});
+			
+			if (CHECK_IS_IN({
+				array : folderNames,
+				value : 'LIB'
+			}) === true) {
+				scanFolder(path + '/LIB', folderPath + '/LIB', func, isToAll);
+			}
 	
 			FIND_FILE_NAMES({
 				path : path,
@@ -35,21 +58,9 @@ module.exports = CLASS((cls) => {
 				}
 			});
 	
-			FIND_FOLDER_NAMES({
-				path : path,
-				isSync : true
-			}, {
-	
-				error : () => {
-					// ignore.
-				},
-	
-				success : (folderNames) => {
-					EACH(folderNames, (folderName) => {
-						if (isToAll === true || CHECK_IS_ALLOWED_FOLDER_NAME(folderName) === true) {
-							scanFolder(path + '/' + folderName, folderPath + '/' + folderName, func, isToAll);
-						}
-					});
+			EACH(folderNames, (folderName) => {
+				if (folderName !== 'LIB' && (isToAll === true || CHECK_IS_ALLOWED_FOLDER_NAME(folderName) === true)) {
+					scanFolder(path + '/' + folderName, folderPath + '/' + folderName, func, isToAll);
 				}
 			});
 		}
