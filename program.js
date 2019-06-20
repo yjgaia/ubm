@@ -68,6 +68,16 @@ RUN(() => {
 				});
 			}
 			
+			// Web Extension을 위한 프로젝트 풀 패키징
+			else if (cmd === 'wefullpack' && box !== undefined && path !== undefined) {
+				ubm.fullpackForWebExtension({
+					bootCodePath : box,
+					path : path,
+					extname : extname,
+					importResourceFilenames : importResourceFilenames
+				});
+			}
+			
 			else {
 				SHOW_ERROR('ubm', '알 수 없는 명령입니다.', cmd);
 			}

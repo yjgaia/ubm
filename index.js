@@ -891,6 +891,243 @@ module.exports = CLASS((cls) => {
 				// done!
 				console.log(CONSOLE_GREEN('[' + _CONFIG.defaultBoxName + '] 프로젝트를 성공적으로 패키징하였습니다.'));
 			};
+			
+			// Web Extension을 위한 풀 패키징
+			let fullpackForWebExtension = self.fullpackForWebExtension = (params) => {
+				
+				let bootCodePath = params.bootCodePath;
+				let path = params.path;
+				let extname = params.extname;
+				let importResourceFilenames = params.importResourceFilenames;
+				
+				let bootCode = READ_FILE({
+					path : bootCodePath,
+					isSync : true
+				}).toString();
+				
+				let configs = eval('(()=>{let config;let BOOT=(_config)=>{config = _config;};\n' + bootCode + '\nreturn config;})()');
+				
+				let browserScript = '';
+				
+				// load all UPPERCASE modules for browser.
+				EACH(['CORE', 'ROOM', 'MODEL', 'BOOT'], (name, i) => {
+					browserScript += READ_FILE({
+						path : __dirname + '/node_modules/uppercase-' + name.toLowerCase() + '/BROWSER.MIN.js',
+						isSync : true
+					}).toString() + '\n';
+				});
+				
+				// configuration
+				let version = 'V' + Date.now();
+				
+				let _CONFIG;
+				let _NODE_CONFIG;
+				let _BROWSER_CONFIG;
+		
+				let stringifyJSONWithFunction = (data) => {
+		
+					return JSON.stringify(data, (key, value) => {
+						if (typeof value === 'function') {
+							return '__FUNCTION_START__' + value.toString() + '__FUNCTION_END__';
+						}
+						return value;
+					}, '\t').replace(/("__FUNCTION_START__(.*)__FUNCTION_END__")/g, (match, content) => {
+						return eval('(' + eval('"' + content.substring('"__FUNCTION_START__'.length, content.length - '__FUNCTION_END__"'.length) + '"') + ')').toString();
+					});
+				};
+				
+				if (configs !== undefined) {
+					_CONFIG = configs.CONFIG;
+					_BROWSER_CONFIG = configs.BROWSER_CONFIG;
+				}
+		
+				// override CONFIG.
+				if (_CONFIG !== undefined) {
+					_CONFIG.isDevMode = false;
+					// add CONFIG to browser script.
+					browserScript += 'EXTEND({ origin : CONFIG, extend : ' + stringifyJSONWithFunction(_CONFIG) + ' });\n\n';
+				}
+				
+				READ_FILE({
+					path : 'VERSION',
+					isSync : true
+				}, {
+					notExists : () => {
+						// ignore.
+					},
+					success : (buffer) => {
+						version = buffer.toString();
+					}
+				});
+				
+				browserScript += 'CONFIG.version = \'' + version + '\';\n\n';
+				
+				if (_CONFIG.isUsingProxy === true) {
+					browserScript += 'CONFIG.webServerPort = BROWSER_CONFIG.port;\n\n';
+				}
+		
+				// override BROWSER_CONFIG.
+				if (_BROWSER_CONFIG !== undefined) {
+		
+					// add BROWSER_CONFIG to browser script.
+					browserScript += 'EXTEND({ origin : BROWSER_CONFIG, extend : ' + stringifyJSONWithFunction(_BROWSER_CONFIG) + ' });\n\n';
+				}
+				
+				// create UPPERCASE box.
+				BOX('UPPERCASE');
+				
+				browserScript += 'BOX(\'UPPERCASE\');\n\n';
+				
+				// create box.
+				BOX(_CONFIG.defaultBoxName);
+
+				browserScript += 'BOX(\'' + _CONFIG.defaultBoxName + '\');\n\n';
+				
+				if (CHECK_FILE_EXISTS({
+					path : Path.resolve('.') + '/BOX',
+					isSync : true
+				}) === true) {
+		
+					// init boxes is BOX folder.
+					FIND_FOLDER_NAMES({
+						path : Path.resolve('.') + '/BOX',
+						isSync : true
+					}, (folderNames) => {
+		
+						EACH(folderNames, (folderName) => {
+		
+							if (CHECK_IS_ALLOWED_FOLDER_NAME(folderName) === true) {
+		
+								// create box.
+								BOX(folderName);
+		
+								browserScript += 'BOX(\'' + folderName + '\');\n\n';
+								
+								// save box name.
+								INIT_BOXES.getBoxNamesInBOXFolder().push(folderName);
+							}
+						});
+					});
+				}
+				
+				LOAD_ALL_SCRIPTS({
+					rootPath : Path.resolve('.'),
+					env : 'BROWSER'
+				}, (path, boxName) => {
+					
+					browserScript += READ_FILE({
+						path : path,
+						isSync : true
+					}).toString() + '\n';
+				});
+				
+				// save all resources as data urls.
+				let resourceDataURLs = [];
+				
+				FOR_BOX((box) => {
+					
+					let boxRootPath = CHECK_IS_IN({
+						array : INIT_BOXES.getBoxNamesInBOXFolder(),
+						value : box.boxName
+					}) === true ? Path.resolve('.') + '/BOX' : Path.resolve('.');
+					
+					let scan = (folderPath, relativePath) => {
+						
+						if (CHECK_FILE_EXISTS({
+							path : folderPath,
+							isSync : true
+						}) === true) {
+							
+							FIND_FILE_NAMES({
+								path : folderPath,
+								isSync : true
+							}, EACH((fileName) => {
+								
+								let ext = Path.extname(fileName).substring(1);
+								
+								if (
+								// mp3 파일을 포함하려면 ogg 파일은 포함되면 안됨
+								(ext !== 'mp3' || extname !== 'ogg') &&
+								
+								// wav 파일을 포함하려면 ogg 파일은 포함되면 안됨
+								(ext !== 'wav' || extname !== 'ogg') &&
+								
+								// ogg 파일을 포함하려면 mp3 파일은 포함되면 안됨
+								(ext !== 'ogg' || extname !== 'mp3')) {
+									
+									if (CHECK_IS_IN({
+										array : importResourceFilenames,
+										value : fileName
+									}) === true || CHECK_IS_IN({
+										array : importResourceFilenames,
+										value : '*.' + ext
+									}) === true) {
+										
+										resourceDataURLs.push({
+											path : relativePath + '/' + fileName,
+											dataURL : 'data:' + WEB_SERVER.getContentTypeFromExtension(ext) + ';charset=utf-8,' + encodeURIComponent(READ_FILE({
+												path : folderPath + '/' + fileName,
+												isSync : true
+											}).toString()).replace(/\'/g, '\\\'')
+										});
+									}
+									
+									else {
+										
+										COPY_FILE({
+											from : boxRootPath + '/' + relativePath + '/' + fileName,
+											to : path + '/' + relativePath + '/' + fileName,
+											isSync : true
+										});
+									}
+								}
+							}));
+							
+							FIND_FOLDER_NAMES({
+								path : folderPath,
+								isSync : true
+							}, EACH((folderName) => {
+								scan(folderPath + '/' + folderName, relativePath + '/' + folderName);
+							}));
+						}
+					};
+					
+					scan(boxRootPath + '/' + box.boxName + '/R', box.boxName + '/R');
+				});
+				
+				browserScript += 'FOR_BOX(o=>{o.R=METHOD(e=>{let i;e.setBasePath=(o=>{i=o});return{run:(e,r)=>{let t=o.boxName+"/R/"+e,a=__R[t];return void 0!==a?t=a:(void 0!==CONFIG.version&&(t+="?version="+CONFIG.version),void 0!==i&&(t=i+"/"+t),"file:"===location.protocol?o.boxName!==CONFIG.defaultBoxName&&(t="BOX/"+t):t="/"+t),void 0!==r&&GET(t,r),t}}})});';
+				
+				// browser script.
+				WRITE_FILE({
+					path : path + '/SCRIPT',
+					content : MINIFY_JS(browserScript)
+				});
+				
+				// resource script.
+				let resourceScript = 'global.__R={';
+				EACH(resourceDataURLs, (info, i) => {
+					if (i > 0) {
+						resourceScript += ',';
+					}
+					resourceScript += '\'' + info.path + '\':\'' + info.dataURL + '\'';
+				});
+				resourceScript += '};'
+				
+				WRITE_FILE({
+					path : path + '/R',
+					content : resourceScript
+				});
+				
+				// base style css.
+				COPY_FILE({
+					from : __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
+					to : path + '/CSS.css',
+					isSync : true
+				});
+				
+				// done!
+				console.log(CONSOLE_GREEN('[' + _CONFIG.defaultBoxName + '] 프로젝트를 성공적으로 패키징하였습니다.'));
+			};
 		}
 	};
 });
