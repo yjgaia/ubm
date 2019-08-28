@@ -907,10 +907,17 @@ module.exports = CLASS((cls) => {
 				
 				let configs = eval('(()=>{let config;let BOOT=(_config)=>{config = _config;};\n' + bootCode + '\nreturn config;})()');
 				
-				let browserScript = '';
+				let coreScript = READ_FILE({
+					path : __dirname + '/node_modules/uppercase-core/BROWSER.MIN.js',
+					isSync : true
+				}).toString() + '\n';
+				
+				let browserScript = coreScript;
+				let backgroundScript = coreScript;
+				let contentScript = coreScript;
 				
 				// load all UPPERCASE modules for browser.
-				EACH(['CORE', 'ROOM', 'MODEL', 'BOOT'], (name, i) => {
+				EACH(['ROOM', 'MODEL', 'BOOT'], (name, i) => {
 					browserScript += READ_FILE({
 						path : __dirname + '/node_modules/uppercase-' + name.toLowerCase() + '/BROWSER.MIN.js',
 						isSync : true
@@ -1097,10 +1104,82 @@ module.exports = CLASS((cls) => {
 				
 				browserScript += 'FOR_BOX(o=>{o.R=METHOD(e=>{let i;e.setBasePath=(o=>{i=o});return{run:(e,r)=>{let t=o.boxName+"/R/"+e,a=__R[t];return void 0!==a?t=a:(void 0!==CONFIG.version&&(t+="?version="+CONFIG.version),void 0!==i&&(t=i+"/"+t),"file:"===location.protocol?o.boxName!==CONFIG.defaultBoxName&&(t="BOX/"+t):t="/"+t),void 0!==r&&GET(t,r),t}}})});';
 				
+				// extension script.
+				LOAD_ALL_SCRIPTS({
+					rootPath : Path.resolve('.'),
+					env : 'EXTENSION'
+				}, (path, boxName) => {
+					
+					browserScript += READ_FILE({
+						path : path,
+						isSync : true
+					}).toString() + '\n';
+				});
+				
 				// browser script.
 				WRITE_FILE({
 					path : path + '/SCRIPT',
 					content : MINIFY_JS(browserScript)
+				});
+				
+				// background script.
+				LOAD_ALL_SCRIPTS({
+					rootPath : Path.resolve('.'),
+					env : 'BACKGROUND'
+				}, (path, boxName) => {
+					
+					backgroundScript += READ_FILE({
+						path : path,
+						isSync : true
+					}).toString() + '\n';
+				});
+				
+				backgroundScript += 'RUN(()=>{INIT_OBJECTS();if(global.MAIN!==undefined){global.MAIN();}});';
+				
+				WRITE_FILE({
+					path : path + '/BACKGROUND.js',
+					content : MINIFY_JS(backgroundScript)
+				});
+				
+				// in page script.
+				contentScript += 'let inPageScript=document.createElement(\'script\');inPageScript.textContent=';
+				
+				let inPageScript = '(()=>{';
+				
+				LOAD_ALL_SCRIPTS({
+					rootPath : Path.resolve('.'),
+					env : 'INPAGE'
+				}, (path, boxName) => {
+					
+					inPageScript += READ_FILE({
+						path : path,
+						isSync : true
+					}).toString() + '\n';
+				});
+				
+				inPageScript += 'if(window.INPAGE_MAIN!==undefined){window.INPAGE_MAIN();}';
+				inPageScript += '})();'
+				
+				contentScript += STRINGIFY(inPageScript);
+				contentScript += ';document.documentElement.appendChild(inPageScript);';
+				
+				// content script.
+				LOAD_ALL_SCRIPTS({
+					rootPath : Path.resolve('.'),
+					env : 'CONTENT'
+				}, (path, boxName) => {
+					
+					contentScript += READ_FILE({
+						path : path,
+						isSync : true
+					}).toString() + '\n';
+				});
+				
+				contentScript += 'RUN(()=>{INIT_OBJECTS();if(global.MAIN!==undefined){global.MAIN();}});';
+				
+				WRITE_FILE({
+					path : path + '/CONTENT.js',
+					content : MINIFY_JS(contentScript)
 				});
 				
 				// resource script.
