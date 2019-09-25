@@ -900,6 +900,8 @@ module.exports = CLASS((cls) => {
 				let extname = params.extname;
 				let importResourceFilenames = params.importResourceFilenames;
 				
+				let isDebugMode = extname === 'debug';
+				
 				let bootCode = READ_FILE({
 					path : bootCodePath,
 					isSync : true
@@ -1119,7 +1121,7 @@ module.exports = CLASS((cls) => {
 				// browser script.
 				WRITE_FILE({
 					path : path + '/SCRIPT',
-					content : MINIFY_JS(browserScript)
+					content : isDebugMode === true ? browserScript : MINIFY_JS(browserScript)
 				});
 				
 				// background script.
@@ -1138,7 +1140,7 @@ module.exports = CLASS((cls) => {
 				
 				WRITE_FILE({
 					path : path + '/BACKGROUND.js',
-					content : MINIFY_JS(backgroundScript)
+					content : isDebugMode === true ? backgroundScript : MINIFY_JS(backgroundScript)
 				});
 				
 				// in page script.
@@ -1179,7 +1181,7 @@ module.exports = CLASS((cls) => {
 				
 				WRITE_FILE({
 					path : path + '/CONTENT.js',
-					content : MINIFY_JS(contentScript)
+					content : isDebugMode === true ? contentScript : MINIFY_JS(contentScript)
 				});
 				
 				// resource script.
