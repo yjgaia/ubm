@@ -1120,7 +1120,7 @@ module.exports = CLASS((cls) => {
 				
 				// browser script.
 				WRITE_FILE({
-					path : path + '/SCRIPT',
+					path : path + '/SCRIPT.js',
 					content : isDebugMode === true ? browserScript : MINIFY_JS(browserScript)
 				});
 				
@@ -1195,7 +1195,7 @@ module.exports = CLASS((cls) => {
 				resourceScript += '};'
 				
 				WRITE_FILE({
-					path : path + '/R',
+					path : path + '/R.js',
 					content : resourceScript
 				});
 				
