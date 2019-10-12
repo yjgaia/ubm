@@ -1177,7 +1177,7 @@ module.exports = CLASS((cls) => {
 					}).toString() + '\n';
 				});
 				
-				contentScript += 'RUN(()=>{INIT_OBJECTS();if(global.MAIN!==undefined){global.MAIN();}});';
+				contentScript += 'if(window.MAIN!==undefined){window.MAIN();}';
 				
 				WRITE_FILE({
 					path : path + '/CONTENT.js',
