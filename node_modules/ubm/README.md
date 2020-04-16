@@ -61,6 +61,11 @@ ubm fullpack Sample.js SampleApp/android/www mp3
 ubm fullpack Sample.js SampleApp/android/www ogg text.csv
 ```
 
+## Web Extension을 위한 프로젝트 풀 패키징
+```
+ubm wefullpack Sample.js WebExtension
+```
+
 ## 라이센스
 [MIT](LICENSE)
 
