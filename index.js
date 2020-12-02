@@ -612,7 +612,7 @@ module.exports = CLASS((cls) => {
 				
 				WRITE_FILE({
 					path : boxName + '.js',
-					content : 'require(process.env.UPPERCASE_PATH + \'/index.js\');\n\nBOOT({\n\tCONFIG : {\n\t\tdefaultBoxName : \'' + boxName + '\',\n\t\t\n\t\tisDevMode : true,\n\t\t\n\t\twebServerPort : ' + port + '\n\t},\n\t\n\tBROWSER_CONFIG : {\n\t\t\n\t},\n\t\n\tNODE_CONFIG : {\n\t\t// 테스트 목적이기 때문에 CPU 클러스터링 기능을 사용하지 않습니다.\n\t\tisNotUsingCPUClustering : true\n\t}\n});\n',
+					content : 'require(process.env.UPPERCASE_PATH + \'/node.index.js\');\n\nBOOT({\n\tCONFIG : {\n\t\tdefaultBoxName : \'' + boxName + '\',\n\t\t\n\t\tisDevMode : true,\n\t\t\n\t\twebServerPort : ' + port + '\n\t},\n\t\n\tBROWSER_CONFIG : {\n\t\t\n\t},\n\t\n\tNODE_CONFIG : {\n\t\t// 테스트 목적이기 때문에 CPU 클러스터링 기능을 사용하지 않습니다.\n\t\tisNotUsingCPUClustering : true\n\t}\n});\n',
 					isSync : true
 				});
 				
