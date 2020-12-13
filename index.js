@@ -670,15 +670,10 @@ module.exports = CLASS((cls) => {
 				
 				let configs = eval('(()=>{let config;let BOOT=(_config)=>{config = _config;};\n' + bootCode + '\nreturn config;})()');
 				
-				let browserScript = '';
-				
-				// load all UPPERCASE modules for browser.
-				EACH(['-core', '-room', '-model', ''], (appendix, i) => {
-					browserScript += READ_FILE({
-						path : __dirname + '/node_modules/uppercase' + appendix + '/DIST/BROWSER.MIN.js',
-						isSync : true
-					}).toString() + '\n';
-				});
+				let browserScript = READ_FILE({
+					path : __dirname + '/node_modules/uppercase/UPPERCASE.js',
+					isSync : true
+				}).toString() + '\n'
 				
 				// configuration
 				let version = 'V' + Date.now();
@@ -883,7 +878,7 @@ module.exports = CLASS((cls) => {
 				
 				// base style css.
 				COPY_FILE({
-					from : __dirname + '/node_modules/uppercase/R/BASE_STYLE.MIN.css',
+					from : __dirname + '/node_modules/uppercase/UPPERCASE-BASE.css',
 					to : path + '/__CSS.css',
 					isSync : true
 				});

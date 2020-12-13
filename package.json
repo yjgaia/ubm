@@ -1,6 +1,6 @@
 {
   "name": "ubm",
-  "version": "1.6.0",
+  "version": "1.6.2",
   "dependencies": {
     "co": "latest",
     "commander": "^2.20.3",
@@ -8,7 +8,7 @@
     "hanul-co-prompt": "latest",
     "jszip": "^3.3.0",
     "request": "^2.88.2",
-    "uppercase": "^2.0.0-beta.5",
+    "uppercase": "^2.0.0-beta.20",
     "uppercase-api-generator": "latest"
   },
   "main": "index.js",
