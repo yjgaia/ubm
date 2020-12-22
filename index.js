@@ -675,6 +675,10 @@ module.exports = CLASS((cls) => {
 					isSync: true
 				}).toString() + '\n'
 
+				const changeStrig = 'box.R = METHOD((m) => {';
+				const changeIndex = browserScript.indexOf(changeStrig);
+				browserScript = browserScript.substring(0, changeIndex) + 'box.__ORIGINAL_R = METHOD((m) => {' + browserScript.substring(changeIndex + changeStrig.length);
+
 				// configuration
 				let version = 'V' + Date.now();
 
@@ -905,21 +909,17 @@ module.exports = CLASS((cls) => {
 				let configs = eval('(()=>{let config;let BOOT=(_config)=>{config = _config;};\n' + bootCode + '\nreturn config;})()');
 
 				let coreScript = READ_FILE({
-					path: __dirname + '/node_modules/uppercase-core/DIST/BROWSER.MIN.js',
+					path: __dirname + '/node_modules/uppercase/UPPERCASE.js',
 					isSync: true
 				}).toString() + '\n';
+
+				const changeStrig = 'box.R = METHOD((m) => {';
+				const changeIndex = coreScript.indexOf(changeStrig);
+				coreScript = coreScript.substring(0, changeIndex) + 'box.__ORIGINAL_R = METHOD((m) => {' + browserScript.substring(changeIndex + changeStrig.length);
 
 				let browserScript = coreScript;
 				let backgroundScript = coreScript;
 				let contentScript = coreScript;
-
-				// load all UPPERCASE modules for browser.
-				EACH(['-room', '-model', ''], (appendix, i) => {
-					browserScript += READ_FILE({
-						path: __dirname + '/node_modules/uppercase' + appendix + '/DIST/BROWSER.MIN.js',
-						isSync: true
-					}).toString() + '\n';
-				});
 
 				// configuration
 				let version = 'V' + Date.now();
@@ -1196,7 +1196,7 @@ module.exports = CLASS((cls) => {
 
 				// base style css.
 				COPY_FILE({
-					from: __dirname + '/node_modules/uppercase-boot/R/BASE_STYLE.MIN.css',
+					from: __dirname + '/node_modules/uppercase/UPPERCASE-BASE.css',
 					to: path + '/CSS.css',
 					isSync: true
 				});
