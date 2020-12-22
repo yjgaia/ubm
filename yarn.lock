@@ -836,10 +836,10 @@ uppercase@^2.0.0-beta.20:
     utf-8-validate latest
     ws "^7.2.3"
 
-uppercase@^2.0.0-beta.22:
-  version "2.0.0-beta.22"
-  resolved "https://registry.yarnpkg.com/uppercase/-/uppercase-2.0.0-beta.22.tgz#3ed1471b6e4be53070c035fc6b2d94cd7ad885d6"
-  integrity sha512-PiFvcFqKMjywRUYJwnkkUkRxMqKWL6SPOYMhQGUYynU6vvE2oPsZENMKIlpJRhZfkmlEugC0Zyni3BjRBvf/Dw==
+uppercase@^2.0.0-beta.23:
+  version "2.0.0-beta.23"
+  resolved "https://registry.yarnpkg.com/uppercase/-/uppercase-2.0.0-beta.23.tgz#11c980fad201978b7303cdd83f922d9405d11e8b"
+  integrity sha512-KJKKT1xU8lkf3T7FJbUE/r+IjBQghEgVPdfKXwBHncHZ2ccHG1hHe8jx05hHJYQQVUO6mocYIxW+pQ0effJAZQ==
   dependencies:
     diskspace "^2.0.0"
     formidable "^1.2.2"
